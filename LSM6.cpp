@@ -6,8 +6,8 @@
 
 // The Arduino two-wire interface uses a 7-bit number for the address,
 // and sets the last bit correctly based on reads and writes
-#define SA0_HIGH_ADDRESS                0b1101011
-#define SA0_LOW_ADDRESS                 0b1101010
+#define DS33_SA0_HIGH_ADDRESS 0b1101011
+#define DS33_SA0_LOW_ADDRESS  0b1101010
 
 #define TEST_REG_ERROR -1
 
@@ -48,23 +48,20 @@ bool LSM6::init(deviceType device, sa0State sa0)
   // perform auto-detection unless device type and SA0 state were both specified
   if (device == device_auto || sa0 == sa0_auto)
   {
-
     // check for LSM6DS33 if device is unidentified or was specified to be this type
-    if (device == device_auto)
+    if (device == device_auto || device == device_DS33)
     {
       // check SA0 high address unless SA0 was specified to be low
-      if (sa0 != sa0_low && testReg(SA0_HIGH_ADDRESS, WHO_AM_I) == DS33_WHO_ID)
+      if (sa0 != sa0_low && testReg(DS33_SA0_HIGH_ADDRESS, WHO_AM_I) == DS33_WHO_ID)
       {
-        // device responds to address 0b1101011; SA0 high
-        device = device_DS33;
         sa0 = sa0_high;
+        if (device == device_auto) { device = device_DS33; }
       }
       // check SA0 low address unless SA0 was specified to be high
-      else if (sa0 != sa0_high && testReg(SA0_LOW_ADDRESS, WHO_AM_I) == DS33_WHO_ID)
+      else if (sa0 != sa0_high && testReg(DS33_SA0_LOW_ADDRESS, WHO_AM_I) == DS33_WHO_ID)
       {
-        // device responds to address 0b1101010; SA0 low
-        device = device_DS33;
         sa0 = sa0_low;
+        if (device == device_auto) { device = device_DS33; }
       }
     }
 
@@ -77,7 +74,12 @@ bool LSM6::init(deviceType device, sa0State sa0)
 
   _device = device;
 
-  address = (sa0 == sa0_high) ? SA0_HIGH_ADDRESS : SA0_LOW_ADDRESS;
+  switch (device)
+  {
+    case device_DS33:
+      address = (sa0 == sa0_high) ? DS33_SA0_HIGH_ADDRESS : DS33_SA0_LOW_ADDRESS;
+      break;
+  }
 
   return true;
 }
@@ -95,7 +97,6 @@ the registers it writes to.
 */
 void LSM6::enableDefault(void)
 {
-
   if (_device == device_DS33)
   {
     // Accelerometer
