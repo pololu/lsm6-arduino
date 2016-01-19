@@ -126,7 +126,7 @@ void LSM6::writeReg(byte reg, byte value)
   last_status = Wire.endTransmission();
 }
 
-byte LSM6::readReg(int reg)
+byte LSM6::readReg(byte reg)
 {
   byte value;
 

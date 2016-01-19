@@ -101,7 +101,7 @@ class LSM6
 
 
     void writeReg(byte reg, byte value);
-    byte readReg(int reg);
+    byte readReg(byte reg);
 
     void readAcc(void);
     void readGyro(void);
