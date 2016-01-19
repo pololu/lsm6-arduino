@@ -1,7 +1,7 @@
 #ifndef LSM6_h
 #define LSM6_h
 
-#include <Arduino.h> // for byte data type
+#include <Arduino.h>
 
 class LSM6
 {
@@ -90,7 +90,7 @@ class LSM6
     vector<int16_t> a; // accelerometer readings
     vector<int16_t> g; // gyro readings
 
-    byte last_status; // status of last I2C transmission
+    uint8_t last_status; // status of last I2C transmission
 
     LSM6(void);
 
@@ -100,15 +100,15 @@ class LSM6
     void enableDefault(void);
 
 
-    void writeReg(byte reg, byte value);
-    byte readReg(byte reg);
+    void writeReg(uint8_t reg, uint8_t value);
+    uint8_t readReg(uint8_t reg);
 
     void readAcc(void);
     void readGyro(void);
     void read(void);
 
-    void setTimeout(unsigned int timeout);
-    unsigned int getTimeout(void);
+    void setTimeout(uint16_t timeout);
+    uint16_t getTimeout(void);
     bool timeoutOccurred(void);
 
     // vector functions
@@ -118,12 +118,12 @@ class LSM6
 
   private:
     deviceType _device; // chip type
-    byte address;
+    uint8_t address;
 
-    unsigned int io_timeout;
+    uint16_t io_timeout;
     bool did_timeout;
 
-    int testReg(byte address, regAddr reg);
+    int16_t testReg(uint8_t address, regAddr reg);
 };
 
 

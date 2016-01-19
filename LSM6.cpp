@@ -33,12 +33,12 @@ bool LSM6::timeoutOccurred()
   return tmp;
 }
 
-void LSM6::setTimeout(unsigned int timeout)
+void LSM6::setTimeout(uint16_t timeout)
 {
   io_timeout = timeout;
 }
 
-unsigned int LSM6::getTimeout()
+uint16_t LSM6::getTimeout()
 {
   return io_timeout;
 }
@@ -118,7 +118,7 @@ void LSM6::enableDefault(void)
   }
 }
 
-void LSM6::writeReg(byte reg, byte value)
+void LSM6::writeReg(uint8_t reg, uint8_t value)
 {
   Wire.beginTransmission(address);
   Wire.write(reg);
@@ -126,14 +126,14 @@ void LSM6::writeReg(byte reg, byte value)
   last_status = Wire.endTransmission();
 }
 
-byte LSM6::readReg(byte reg)
+uint8_t LSM6::readReg(uint8_t reg)
 {
-  byte value;
+  uint8_t value;
 
   Wire.beginTransmission(address);
   Wire.write(reg);
   last_status = Wire.endTransmission();
-  Wire.requestFrom(address, (byte)1);
+  Wire.requestFrom(address, (uint8_t)1);
   value = Wire.read();
   Wire.endTransmission();
 
@@ -147,23 +147,23 @@ void LSM6::readAcc(void)
   // automatic increment of register address is enabled by default (IF_INC in CTRL3_C)
   Wire.write(OUTX_L_XL);
   Wire.endTransmission();
-  Wire.requestFrom(address, (byte)6);
+  Wire.requestFrom(address, (uint8_t)6);
 
-  unsigned int millis_start = millis();
+  uint16_t millis_start = millis();
   while (Wire.available() < 6) {
-    if (io_timeout > 0 && ((unsigned int)millis() - millis_start) > io_timeout)
+    if (io_timeout > 0 && ((uint16_t)millis() - millis_start) > io_timeout)
     {
       did_timeout = true;
       return;
     }
   }
 
-  byte xla = Wire.read();
-  byte xha = Wire.read();
-  byte yla = Wire.read();
-  byte yha = Wire.read();
-  byte zla = Wire.read();
-  byte zha = Wire.read();
+  uint8_t xla = Wire.read();
+  uint8_t xha = Wire.read();
+  uint8_t yla = Wire.read();
+  uint8_t yha = Wire.read();
+  uint8_t zla = Wire.read();
+  uint8_t zha = Wire.read();
 
   // combine high and low bytes
   a.x = (int16_t)(xha << 8 | xla);
@@ -178,11 +178,11 @@ void LSM6::readGyro(void)
   // automatic increment of register address is enabled by default (IF_INC in CTRL3_C)
   Wire.write(OUTX_L_G);
   Wire.endTransmission();
-  Wire.requestFrom(address, (byte)6);
+  Wire.requestFrom(address, (uint8_t)6);
 
-  unsigned int millis_start = millis();
+  uint16_t millis_start = millis();
   while (Wire.available() < 6) {
-    if (io_timeout > 0 && ((unsigned int)millis() - millis_start) > io_timeout)
+    if (io_timeout > 0 && ((uint16_t)millis() - millis_start) > io_timeout)
     {
       did_timeout = true;
       return;
@@ -219,16 +219,16 @@ void LSM6::vector_normalize(vector<float> *a)
 
 // Private Methods //////////////////////////////////////////////////////////////
 
-int LSM6::testReg(byte address, regAddr reg)
+int16_t LSM6::testReg(uint8_t address, regAddr reg)
 {
   Wire.beginTransmission(address);
-  Wire.write((byte)reg);
+  Wire.write((uint8_t)reg);
   if (Wire.endTransmission() != 0)
   {
     return TEST_REG_ERROR;
   }
 
-  Wire.requestFrom(address, (byte)1);
+  Wire.requestFrom(address, (uint8_t)1);
   if (Wire.available())
   {
     return Wire.read();
