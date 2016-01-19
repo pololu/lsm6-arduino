@@ -60,7 +60,7 @@ If this does not work, you can manually install the library:
 
 ## Examples
 
-Several example sketches are available that show how to use the library. You can access them from the Arduino IDE by opening the "File" menu, selecting "Examples", and then selecting "LSM6". If you cannot find these examples, the library was probably installed incorrectly and you should retry the installation instructions above.
+An example sketch is available that shows how to use the library. You can access it from the Arduino IDE by opening the "File" menu, selecting "Examples", and then selecting "LSM6". If you cannot find the example, the library was probably installed incorrectly and you should retry the installation instructions above.
 
 ## Library reference
 
@@ -79,7 +79,7 @@ Several example sketches are available that show how to use the library. You can
 * `bool init(deviceType device, sa0State sa0)`<br>
   Initializes the library with the device being used (`device_DS33` or `device_auto`) and the state of the SA0 pin (`sa0_low`, `sa0_high`, or `sa0_auto`), which determines the least significant bit of the I&sup2;C slave address. Constants for these arguments are defined in LSM6.h. Both of these arguments are optional; if they are not specified, the library will try to automatically detect the device address. A boolean is returned indicating whether the type of LSM6 device was successfully determined (if necessary).
 
-  *Note:* Automatic detection of the device type currently does not work with the Arduino Due because of issues with its Wire library. To work around this, specify the device and SA0 state manually (e.g. @init(LSM6::device_DS33, LSM6::sa0_high)@).
+  *Note:* Automatic detection of the device type currently does not work with the Arduino Due because of issues with its Wire library. To work around this, specify the device and SA0 state manually (e.g. `init(LSM6::device_DS33, LSM6::sa0_high)`).
 
 * `void getDeviceType(void)`<br>
   Returns the device type specified to or detected by `init()`.
@@ -87,7 +87,7 @@ Several example sketches are available that show how to use the library. You can
 * `void enableDefault(void)`<br>
   Turns on the accelerometer and gyro and enables a consistent set of default settings.
 
-  This function will reset the accelerometer to &plusmn;2 g full scale and the gyro to &plusmn;245 dps. See the comments in LSM6.cpp for a full explanation of the settings.
+  This function will reset the accelerometer to &plusmn;2&nbsp;g full scale and the gyro to &plusmn;245&nbsp;dps. See the comments in LSM6.cpp for a full explanation of the settings.
 
 * `void writeReg(uint8_t reg, uint8_t value)`<br>
   Writes a sensor register with the given value.
