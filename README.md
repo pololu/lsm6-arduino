@@ -79,8 +79,6 @@ An example sketch is available that shows how to use the library. You can access
 * `bool init(deviceType device, sa0State sa0)`<br>
   Initializes the library with the device being used (`device_DS33` or `device_auto`) and the state of the SA0 pin (`sa0_low`, `sa0_high`, or `sa0_auto`), which determines the least significant bit of the I&sup2;C slave address. Constants for these arguments are defined in LSM6.h. Both of these arguments are optional; if they are not specified, the library will try to automatically detect the device address. A boolean is returned indicating whether the type of LSM6 device was successfully determined (if necessary).
 
-  *Note:* Automatic detection of the device type currently does not work with the Arduino Due because of issues with its Wire library. To work around this, specify the device and SA0 state manually (e.g. `init(LSM6::device_DS33, LSM6::sa0_high)`).
-
 * `void getDeviceType(void)`<br>
   Returns the device type specified to or detected by `init()`.
 
