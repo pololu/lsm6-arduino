@@ -119,6 +119,31 @@ void LSM6::enableDefault(void)
   }
 }
 
+/*
+ * Set the Accelerometer Scale:
+ *  ACC2g, ACC4g, ACC8g, ACC16g
+ */
+void LSM6::setAccScale( accScale scale )
+{
+  switch( scale )
+  {
+    case ACC2g:
+      Serial.println("Setting scale to 2g");
+      break;
+    case ACC4g:
+      Serial.println("Setting scale to 4g");
+      break;
+    case ACC8g:
+      Serial.println("Setting scale to 8g");
+      break;
+    case ACC16g:
+      Serial.println("Setting scale to 16g");
+      break;
+  }
+}
+
+
+
 void LSM6::writeReg(uint8_t reg, uint8_t value)
 {
   Wire.beginTransmission(address);

@@ -1,7 +1,17 @@
+/*
+ * LSM6.h - API and defines for LSM6DS33 iNEMO inertial module for Arduino
+ *
+ * Original code: Pololu  <inbox@pololu.com>
+ * Full Scale API updates by: Aaron Crandall <acrandal@gmail.com>
+ *
+ */
+
 #ifndef LSM6_h
 #define LSM6_h
 
 #include <Arduino.h>
+
+enum accScale { ACC2g, ACC4g, ACC8g, ACC16g };  // AOC
 
 class LSM6
 {
@@ -98,6 +108,7 @@ class LSM6
     deviceType getDeviceType(void) { return _device; }
 
     void enableDefault(void);
+    void setAccScale( accScale scale );   // Choose Accelerometer Scale
 
 
     void writeReg(uint8_t reg, uint8_t value);
