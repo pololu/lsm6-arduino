@@ -11,7 +11,8 @@
 
 #include <Arduino.h>
 
-enum accScale { ACC2g, ACC4g, ACC8g, ACC16g };  // AOC
+enum accScale { ACC2g, ACC4g, ACC8g, ACC16g }; 
+enum gyroScale { G125dps, G245dps, G500dps, G1000dps, G2000dps };
 
 class LSM6
 {
@@ -109,7 +110,7 @@ class LSM6
 
     void enableDefault(void);
     void setAccScale( accScale scale );   // Choose Accelerometer Scale
-
+    void setGyroScale( gyroScale scale ); // Choose Gyro Scale
 
     void writeReg(uint8_t reg, uint8_t value);
     uint8_t readReg(uint8_t reg);

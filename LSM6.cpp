@@ -18,6 +18,12 @@
 #define ACC_FS_XL4g  0b00001000   // FS_XL 10
 #define ACC_FS_XL8g  0b00001100   // FS_XL 11
 
+#define GYRO_FS_125dps  0b00000010 // FS_G 00
+#define GYRO_FS_245dps  0b00000000 // FS_G 00
+#define GYRO_FS_500dps  0b00000100 // FS_G 01
+#define GYRO_FS_1000dps 0b00001000 // FS_G_10
+#define GYRO_FS_2000dps 0b00001100 // FS_G 11
+
 // Constructors ////////////////////////////////////////////////////////////////
 
 LSM6::LSM6(void)
@@ -153,8 +159,41 @@ void LSM6::setAccScale( accScale scale )
   writeReg(CTRL1_XL, curr_CTRL1_XL);    // Write new Accel configuration
 }
 
+/**
+ *  Set the scale for the gyroscope. Options are:
+ *   G125dps, G245dps, G500dps, G1000dps, G2000dps
+ */
+void LSM6::setGyroScale( gyroScale scale )
+{
+  uint8_t curr_CTRL2_G;
+  curr_CTRL2_G = readReg(CTRL2_G);   // Read in current Gyro config
+  curr_CTRL2_G &= 0b11110001;         // Mask off the FS_G bits
+
+  switch( scale )                      // Choose new setting mask
+  {
+    case G125dps:
+      curr_CTRL2_G |= GYRO_FS_125dps;  // Set the FS_G bits to 001
+      break;
+    case G245dps:
+      curr_CTRL2_G |= GYRO_FS_245dps;  // Set the FS_G bits to 000
+      break;
+    case G500dps:
+      curr_CTRL2_G |= GYRO_FS_500dps; // Set the FS_XL bits to 010
+      break;
+    case G1000dps:
+      curr_CTRL2_G |= GYRO_FS_1000dps;  // Set the FS_XL bits to 100
+      break;
+    case G2000dps:
+      curr_CTRL2_G |= GYRO_FS_2000dps;  // Set the FS_XL bits to 110
+      break;
+  }
+  writeReg(CTRL2_G, curr_CTRL2_G);   // Write new Accel configuration
+}
 
 
+/**
+ *  Write to a single register at reg with a given byte
+ */
 void LSM6::writeReg(uint8_t reg, uint8_t value)
 {
   Wire.beginTransmission(address);
@@ -163,6 +202,9 @@ void LSM6::writeReg(uint8_t reg, uint8_t value)
   last_status = Wire.endTransmission();
 }
 
+/**
+ *  Read out a single byte at a given register address
+ */
 uint8_t LSM6::readReg(uint8_t reg)
 {
   uint8_t value;
