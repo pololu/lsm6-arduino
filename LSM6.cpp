@@ -115,12 +115,14 @@ void LSM6::enableDefault(void)
     // 0x80 = 0b10000000
     // ODR = 1000 (1.66 kHz (high performance)); FS_XL = 00 (+/-2 g full scale)
     writeReg(CTRL1_XL, 0x80);
+    setAccScale( ACC2g );      // set accelerometer scale to +/-2 g full scale
 
     // Gyro
 
     // 0x80 = 0b010000000
-    // ODR = 1000 (1.66 kHz (high performance)); FS_XL = 00 (245 dps)
+    // ODR = 1000 (1.66 kHz (high performance)); FS_G = 00 (245 dps)
     writeReg(CTRL2_G, 0x80);
+    setGyroScale( G245dps );  // set gyroscope scale to 245 dps
 
     // Common
 
@@ -144,19 +146,20 @@ void LSM6::setAccScale( accScale scale )
   switch( scale )                      // Choose new setting mask
   {
     case ACC2g:
-      curr_CTRL1_XL |= ACC_FS_XL2g;  // Set the FS_XL bits to 00
+      curr_AccScale = ACC_FS_XL2g;     // Set the FS_XL bits to 00
       break;
     case ACC16g:
-      curr_CTRL1_XL |= ACC_FS_XL16g; // Set the FS_XL bits to 01
+      curr_AccScale = ACC_FS_XL16g;    // Set the FS_XL bits to 01
       break;
     case ACC4g:
-      curr_CTRL1_XL |= ACC_FS_XL4g;  // Set the FS_XL bits to 10
+      curr_AccScale = ACC_FS_XL4g;     // Set the FS_XL bits to 10
       break;
     case ACC8g:
-      curr_CTRL1_XL |= ACC_FS_XL8g;  // Set the FS_XL bits to 11
+      curr_AccScale = ACC_FS_XL8g;     // Set the FS_XL bits to 11
       break;
   }
-  writeReg(CTRL1_XL, curr_CTRL1_XL);    // Write new Accel configuration
+  curr_CTRL1_XL |= curr_AccScale;
+  writeReg(CTRL1_XL, curr_CTRL1_XL);   // Write new Accel configuration
 }
 
 /**
@@ -166,28 +169,29 @@ void LSM6::setAccScale( accScale scale )
 void LSM6::setGyroScale( gyroScale scale )
 {
   uint8_t curr_CTRL2_G;
-  curr_CTRL2_G = readReg(CTRL2_G);   // Read in current Gyro config
-  curr_CTRL2_G &= 0b11110001;         // Mask off the FS_G bits
+  curr_CTRL2_G = readReg(CTRL2_G);       // Read in current Gyro config
+  curr_CTRL2_G &= 0b11110001;            // Mask off the FS_G bits
 
-  switch( scale )                      // Choose new setting mask
+  switch( scale )                        // Choose new setting mask
   {
     case G125dps:
-      curr_CTRL2_G |= GYRO_FS_125dps;  // Set the FS_G bits to 001
+      curr_GyroScale = GYRO_FS_125dps;   // Set the FS_G bits to 001
       break;
     case G245dps:
-      curr_CTRL2_G |= GYRO_FS_245dps;  // Set the FS_G bits to 000
+      curr_GyroScale = GYRO_FS_245dps;   // Set the FS_G bits to 000
       break;
     case G500dps:
-      curr_CTRL2_G |= GYRO_FS_500dps; // Set the FS_XL bits to 010
+      curr_GyroScale = GYRO_FS_500dps;   // Set the FS_G bits to 010
       break;
     case G1000dps:
-      curr_CTRL2_G |= GYRO_FS_1000dps;  // Set the FS_XL bits to 100
+      curr_GyroScale = GYRO_FS_1000dps;  // Set the FS_G bits to 100
       break;
     case G2000dps:
-      curr_CTRL2_G |= GYRO_FS_2000dps;  // Set the FS_XL bits to 110
+      curr_GyroScale = GYRO_FS_2000dps;  // Set the FS_G bits to 110
       break;
   }
-  writeReg(CTRL2_G, curr_CTRL2_G);   // Write new Accel configuration
+  curr_CTRL2_G |= curr_GyroScale;
+  writeReg(CTRL2_G, curr_CTRL2_G);       // Write new Accel configuration
 }
 
 

@@ -101,6 +101,9 @@ class LSM6
     vector<int16_t> a; // accelerometer readings
     vector<int16_t> g; // gyro readings
 
+    accScale curr_AccScale;    // Current Accelerometer Scale
+    gyroScale curr_GyroScale;  // Current Gyroscope Scale
+
     uint8_t last_status; // status of last I2C transmission
 
     LSM6(void);
