@@ -13,6 +13,11 @@
 
 #define DS33_WHO_ID    0x69
 
+#define ACC_FS_XL2g  0b00000000   // FS_XL 00
+#define ACC_FS_XL16g 0b00000100   // FS_XL 01
+#define ACC_FS_XL4g  0b00001000   // FS_XL 10
+#define ACC_FS_XL8g  0b00001100   // FS_XL 11
+
 // Constructors ////////////////////////////////////////////////////////////////
 
 LSM6::LSM6(void)
@@ -125,21 +130,27 @@ void LSM6::enableDefault(void)
  */
 void LSM6::setAccScale( accScale scale )
 {
-  switch( scale )
+
+  uint8_t curr_CTRL1_XL;
+  curr_CTRL1_XL = readReg(CTRL1_XL);   // Read in current Accel config
+  curr_CTRL1_XL &= 0b11110011;         // Mask off the FS_XL bits
+
+  switch( scale )                      // Choose new setting mask
   {
     case ACC2g:
-      Serial.println("Setting scale to 2g");
-      break;
-    case ACC4g:
-      Serial.println("Setting scale to 4g");
-      break;
-    case ACC8g:
-      Serial.println("Setting scale to 8g");
+      curr_CTRL1_XL |= ACC_FS_XL2g;  // Set the FS_XL bits to 00
       break;
     case ACC16g:
-      Serial.println("Setting scale to 16g");
+      curr_CTRL1_XL |= ACC_FS_XL16g; // Set the FS_XL bits to 01
+      break;
+    case ACC4g:
+      curr_CTRL1_XL |= ACC_FS_XL4g;  // Set the FS_XL bits to 10
+      break;
+    case ACC8g:
+      curr_CTRL1_XL |= ACC_FS_XL8g;  // Set the FS_XL bits to 11
       break;
   }
+  writeReg(CTRL1_XL, curr_CTRL1_XL);    // Write new Accel configuration
 }
 
 
