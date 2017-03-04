@@ -14,6 +14,7 @@
 enum accScale { ACC2g, ACC4g, ACC8g, ACC16g }; 
 enum gyroScale { G125dps, G245dps, G500dps, G1000dps, G2000dps };
 
+
 class LSM6
 {
   public:
@@ -101,11 +102,18 @@ class LSM6
     vector<int16_t> a; // accelerometer readings
     vector<int16_t> g; // gyro readings
 
+    vector<float> acc_g;    // accelerometer readings in G
+    vector<float> gyro_dps; // gyroscope readings in Degress Per Second
+
     accScale curr_AccScale;    // Current Accelerometer Scale
     gyroScale curr_GyroScale;  // Current Gyroscope Scale
 
+    float curr_AccScaleFactor; // Scaling factor for current scale setting
+    float curr_GyroScaleFactor;
+
     uint8_t last_status; // status of last I2C transmission
 
+    // Member interfaces
     LSM6(void);
 
     bool init(deviceType device = device_auto, sa0State sa0 = sa0_auto);
@@ -115,12 +123,17 @@ class LSM6
     void setAccScale( accScale scale );   // Choose Accelerometer Scale
     void setGyroScale( gyroScale scale ); // Choose Gyro Scale
 
+
     void writeReg(uint8_t reg, uint8_t value);
     uint8_t readReg(uint8_t reg);
 
     void readAcc(void);
     void readGyro(void);
     void read(void);
+
+    void calcAccG(void);    // Calculate accelerometer values in gravities
+    void calcGyroDPS(void); // Calculate gyroscope values in degrees per second
+    void readCalc(void);    // Read in IMU and calculate G & DPS
 
     void setTimeout(uint16_t timeout);
     uint16_t getTimeout(void);

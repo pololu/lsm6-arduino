@@ -24,6 +24,20 @@
 #define GYRO_FS_1000dps 0b00001000 // FS_G_10
 #define GYRO_FS_2000dps 0b00001100 // FS_G 11
 
+// Defined scaling factors for Gravities and Degrees Per second
+//  -- found in LSM6D33 spec sheet, page 15
+#define ACC_SCALE_FACTOR_2g  0.061
+#define ACC_SCALE_FACTOR_4g  0.122
+#define ACC_SCALE_FACTOR_8g  0.244
+#define ACC_SCALE_FACTOR_16g 0.488
+
+#define GYRO_SCALE_FACTOR_125dps   4.375
+#define GYRO_SCALE_FACTOR_245dps   8.750
+#define GYRO_SCALE_FACTOR_500dps  17.500
+#define GYRO_SCALE_FACTOR_1000dps 35.000
+#define GYRO_SCALE_FACTOR_2000dps 70.000
+
+
 // Constructors ////////////////////////////////////////////////////////////////
 
 LSM6::LSM6(void)
@@ -53,6 +67,7 @@ uint16_t LSM6::getTimeout()
 {
   return io_timeout;
 }
+
 
 bool LSM6::init(deviceType device, sa0State sa0)
 {
@@ -141,21 +156,26 @@ void LSM6::setAccScale( accScale scale )
 
   uint8_t curr_CTRL1_XL;
   curr_CTRL1_XL = readReg(CTRL1_XL);   // Read in current Accel config
+                                       // curr_CTRL1_XL is a member variable to the LSM6 class
   curr_CTRL1_XL &= 0b11110011;         // Mask off the FS_XL bits
 
   switch( scale )                      // Choose new setting mask
   {
     case ACC2g:
       curr_AccScale = ACC_FS_XL2g;     // Set the FS_XL bits to 00
+      curr_AccScaleFactor = ACC_SCALE_FACTOR_2g;
       break;
     case ACC16g:
       curr_AccScale = ACC_FS_XL16g;    // Set the FS_XL bits to 01
+      curr_AccScaleFactor = ACC_SCALE_FACTOR_16g;
       break;
     case ACC4g:
       curr_AccScale = ACC_FS_XL4g;     // Set the FS_XL bits to 10
+      curr_AccScaleFactor = ACC_SCALE_FACTOR_4g;
       break;
     case ACC8g:
       curr_AccScale = ACC_FS_XL8g;     // Set the FS_XL bits to 11
+      curr_AccScaleFactor = ACC_SCALE_FACTOR_8g;
       break;
   }
   curr_CTRL1_XL |= curr_AccScale;
@@ -170,29 +190,61 @@ void LSM6::setGyroScale( gyroScale scale )
 {
   uint8_t curr_CTRL2_G;
   curr_CTRL2_G = readReg(CTRL2_G);       // Read in current Gyro config
+                                         // curr_CTRL2_G is a member variable to the LSM6 class
   curr_CTRL2_G &= 0b11110001;            // Mask off the FS_G bits
 
   switch( scale )                        // Choose new setting mask
   {
     case G125dps:
       curr_GyroScale = GYRO_FS_125dps;   // Set the FS_G bits to 001
+      curr_GyroScaleFactor = GYRO_SCALE_FACTOR_125dps;
       break;
     case G245dps:
       curr_GyroScale = GYRO_FS_245dps;   // Set the FS_G bits to 000
+      curr_GyroScaleFactor = GYRO_SCALE_FACTOR_245dps;
       break;
     case G500dps:
       curr_GyroScale = GYRO_FS_500dps;   // Set the FS_G bits to 010
+      curr_GyroScaleFactor = GYRO_SCALE_FACTOR_500dps;
       break;
     case G1000dps:
       curr_GyroScale = GYRO_FS_1000dps;  // Set the FS_G bits to 100
+      curr_GyroScaleFactor = GYRO_SCALE_FACTOR_1000dps;
       break;
     case G2000dps:
       curr_GyroScale = GYRO_FS_2000dps;  // Set the FS_G bits to 110
+      curr_GyroScaleFactor = GYRO_SCALE_FACTOR_2000dps;
       break;
   }
   curr_CTRL2_G |= curr_GyroScale;
   writeReg(CTRL2_G, curr_CTRL2_G);       // Write new Accel configuration
 }
+
+
+void LSM6::calcAccG(void)
+{
+  acc_g.x = a.x * curr_AccScaleFactor * 1000;  // 1000 to go from mg to g
+  acc_g.y = a.y * curr_AccScaleFactor * 1000;
+  acc_g.z = a.z * curr_AccScaleFactor * 1000; 
+}
+
+void LSM6::calcGyroDPS(void)
+{
+  gyro_dps.x = g.x * curr_GyroScale * 1000;    // 1000 to go from mdps to dps
+  gyro_dps.y = g.y * curr_GyroScale * 1000;    // 1000 to go from mdps to dps
+  gyro_dps.z = g.z * curr_GyroScale * 1000;    // 1000 to go from mdps to dps
+}
+
+/*
+ *  Helper function to both read in IMU data, then calculate human-readable vals
+ */
+void LSM6::readCalc(void)
+{
+  read();        // Read in IMU
+  calcAccG();    // Calc Gs
+  calcGyroDPS(); // Calc DPS
+}
+
 
 
 /**
