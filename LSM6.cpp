@@ -1,3 +1,13 @@
+/*
+ * LSM6.cpp - Driver implementation for 
+ *            LSM6DS33 iNEMO inertial module for Arduino
+ *
+ * Original code: Pololu  <inbox@pololu.com>
+ * Full Scale API and SI unit conversion updates by:
+ *       Aaron Crandall <acrandal@gmail.com>
+ *
+ */
+
 #include <LSM6.h>
 #include <Wire.h>
 #include <math.h>
@@ -13,6 +23,8 @@
 
 #define DS33_WHO_ID    0x69
 
+// Accelerometer and Gyro scaling bitmasks for
+//  CTRL1_XL and CTRL2_G registers
 #define ACC_FS_XL2g  0b00000000   // FS_XL 00
 #define ACC_FS_XL16g 0b00000100   // FS_XL 01
 #define ACC_FS_XL4g  0b00001000   // FS_XL 10
@@ -26,12 +38,12 @@
 
 // Defined scaling factors for Gravities and Degrees Per second
 //  -- found in LSM6D33 spec sheet, page 15
-#define ACC_SCALE_FACTOR_2g  0.061
+#define ACC_SCALE_FACTOR_2g  0.061    // Raw value * factor == mg
 #define ACC_SCALE_FACTOR_4g  0.122
 #define ACC_SCALE_FACTOR_8g  0.244
 #define ACC_SCALE_FACTOR_16g 0.488
 
-#define GYRO_SCALE_FACTOR_125dps   4.375
+#define GYRO_SCALE_FACTOR_125dps   4.375  // Raw value * factor == mdps
 #define GYRO_SCALE_FACTOR_245dps   8.750
 #define GYRO_SCALE_FACTOR_500dps  17.500
 #define GYRO_SCALE_FACTOR_1000dps 35.000
@@ -179,6 +191,8 @@ void LSM6::setAccScale( accScale scale )
       curr_AccScale = ACC_FS_XL8g;     // Set the FS_XL bits to 11
       curr_AccScaleFactor = ACC_SCALE_FACTOR_8g;
       break;
+    default:
+      Serial.println(" Invalid accelerometer scaling factor chosen.");
   }
   curr_CTRL1_XL |= curr_AccScale;
   writeReg(CTRL1_XL, curr_CTRL1_XL);   // Write new Accel configuration
@@ -217,6 +231,8 @@ void LSM6::setGyroScale( gyroScale scale )
       curr_GyroScale = GYRO_FS_2000dps;  // Set the FS_G bits to 110
       curr_GyroScaleFactor = GYRO_SCALE_FACTOR_2000dps;
       break;
+    default:
+      Serial.println(" Invalid Gyroscope scaling factor chosen.");
   }
   curr_CTRL2_G |= curr_GyroScale;
   writeReg(CTRL2_G, curr_CTRL2_G);       // Write new Accel configuration
@@ -229,9 +245,9 @@ void LSM6::setGyroScale( gyroScale scale )
  */
 void LSM6::calcAccG(void)
 {
-  acc_g.x = a.x * curr_AccScaleFactor * 1000;  // 1000 to go from mg to g
-  acc_g.y = a.y * curr_AccScaleFactor * 1000;
-  acc_g.z = a.z * curr_AccScaleFactor * 1000; 
+  acc_g.x = a.x * curr_AccScaleFactor / 1000; // div 1000 to go from mg to g
+  acc_g.y = a.y * curr_AccScaleFactor / 1000;
+  acc_g.z = a.z * curr_AccScaleFactor / 1000; 
 }
 
 /**
@@ -242,9 +258,9 @@ void LSM6::calcAccG(void)
 void LSM6::calcAccMPS2(void)
 {
   calcAccG();
-  acc_mps2.x = acc_g.x / G2MPS2;  // Converts from Gravities to m/s^2
-  acc_mps2.y = acc_g.y / G2MPS2;
-  acc_mps2.z = acc_g.z / G2MPS2; 
+  acc_mps2.x = acc_g.x * G2MPS2;  // Converts from Gravities to m/s^2
+  acc_mps2.y = acc_g.y * G2MPS2;
+  acc_mps2.z = acc_g.z * G2MPS2; 
 }
 
 /**
@@ -253,9 +269,9 @@ void LSM6::calcAccMPS2(void)
  */
 void LSM6::calcGyroDPS(void)
 {
-  gyro_dps.x = g.x * curr_GyroScale * 1000;    // 1000 to go from mdps to dps
-  gyro_dps.y = g.y * curr_GyroScale * 1000;    // 1000 to go from mdps to dps
-  gyro_dps.z = g.z * curr_GyroScale * 1000;    // 1000 to go from mdps to dps
+  gyro_dps.x = g.x * curr_GyroScaleFactor / 1000; // div 1000 -> mdps to dps
+  gyro_dps.y = g.y * curr_GyroScaleFactor / 1000;  
+  gyro_dps.z = g.z * curr_GyroScaleFactor / 1000;
 }
 
 /**

@@ -1,6 +1,6 @@
 # LSM6 library for Arduino
 
-Version: 1.0.0<br>
+Version: 1.0.5<br>
 Release date: 2016 January 19<br>
 [www.pololu.com](https://www.pololu.com/)
 
@@ -144,3 +144,4 @@ Example sketches are available that shows how to use the library. You can access
 ## Version history
 
 * 1.0.0 (2016 Jan 19): Original release.
+* 1.0.5 (2017 Mar 04): Full Scale and SI unit APIs added.
