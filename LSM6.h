@@ -2,7 +2,8 @@
  * LSM6.h - API and defines for LSM6DS33 iNEMO inertial module for Arduino
  *
  * Original code: Pololu  <inbox@pololu.com>
- * Full Scale API updates by: Aaron Crandall <acrandal@gmail.com>
+ * Full Scale API and SI unit conversion updates by:
+ *       Aaron Crandall <acrandal@gmail.com>
  *
  */
 
@@ -99,39 +100,40 @@ class LSM6
       MD2_CFG           = 0x5F,
     };
 
-    vector<int16_t> a; // accelerometer readings
-    vector<int16_t> g; // gyro readings
+    vector<int16_t> a;      // accelerometer readings
+    vector<int16_t> g;      // gyro readings
 
     vector<float> acc_g;    // accelerometer readings in G
+    vector<float> acc_mps2; // accelerometer readings in m/s^2
     vector<float> gyro_dps; // gyroscope readings in Degress Per Second
 
-    accScale curr_AccScale;    // Current Accelerometer Scale
-    gyroScale curr_GyroScale;  // Current Gyroscope Scale
+    accScale curr_AccScale;     // Current Accelerometer Scale
+    gyroScale curr_GyroScale;   // Current Gyroscope Scale
 
-    float curr_AccScaleFactor; // Scaling factor for current scale setting
+    float curr_AccScaleFactor;  // Scaling factor for current scale setting
     float curr_GyroScaleFactor;
 
     uint8_t last_status; // status of last I2C transmission
 
-    // Member interfaces
+    //**************** Member interfaces ****************************//
     LSM6(void);
 
     bool init(deviceType device = device_auto, sa0State sa0 = sa0_auto);
     deviceType getDeviceType(void) { return _device; }
 
     void enableDefault(void);
-    void setAccScale( accScale scale );   // Choose Accelerometer Scale
-    void setGyroScale( gyroScale scale ); // Choose Gyro Scale
-
+    void setAccScale( accScale scale );   // Set accelerometer scale
+    void setGyroScale( gyroScale scale ); // Set gyro scale
 
     void writeReg(uint8_t reg, uint8_t value);
     uint8_t readReg(uint8_t reg);
 
-    void readAcc(void);
-    void readGyro(void);
-    void read(void);
+    void readAcc(void);     // Read just the accelerometer into vector 'a'
+    void readGyro(void);    // Read just the gyro into vector 'g'
+    void read(void);        // Read both acc and gyro
 
     void calcAccG(void);    // Calculate accelerometer values in gravities
+    void calcAccMPS2(void); // Calculate accelerometer values in m/s^2
     void calcGyroDPS(void); // Calculate gyroscope values in degrees per second
     void readCalc(void);    // Read in IMU and calculate G & DPS
 

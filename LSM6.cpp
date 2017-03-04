@@ -37,6 +37,8 @@
 #define GYRO_SCALE_FACTOR_1000dps 35.000
 #define GYRO_SCALE_FACTOR_2000dps 70.000
 
+#define G2MPS2 9.80665         // Scaling factor to convert Gravities to M/S^2
+
 
 // Constructors ////////////////////////////////////////////////////////////////
 
@@ -147,7 +149,7 @@ void LSM6::enableDefault(void)
   }
 }
 
-/*
+/**
  * Set the Accelerometer Scale:
  *  ACC2g, ACC4g, ACC8g, ACC16g
  */
@@ -221,6 +223,10 @@ void LSM6::setGyroScale( gyroScale scale )
 }
 
 
+/**
+ *  Calculate the accelerometer values as gravities (G)
+ *   This is based on the currently set accelerometer scale (which gives mg)
+ */
 void LSM6::calcAccG(void)
 {
   acc_g.x = a.x * curr_AccScaleFactor * 1000;  // 1000 to go from mg to g
@@ -228,6 +234,23 @@ void LSM6::calcAccG(void)
   acc_g.z = a.z * curr_AccScaleFactor * 1000; 
 }
 
+/**
+ *  Fills the acc_mps2 vector with the current acceleration values in m/s^2
+ *   ** Note: Could be made faster by copying the calcAccG code into here
+ *            That would bypass 3 assignments and 3 floating point calculations
+ */
+void LSM6::calcAccMPS2(void)
+{
+  calcAccG();
+  acc_mps2.x = acc_g.x / G2MPS2;  // Converts from Gravities to m/s^2
+  acc_mps2.y = acc_g.y / G2MPS2;
+  acc_mps2.z = acc_g.z / G2MPS2; 
+}
+
+/**
+ *  Calculate the gyro values as degress per second
+ *   This is based on the currently set gyro scale (which gives mdps)
+ */
 void LSM6::calcGyroDPS(void)
 {
   gyro_dps.x = g.x * curr_GyroScale * 1000;    // 1000 to go from mdps to dps
@@ -235,16 +258,15 @@ void LSM6::calcGyroDPS(void)
   gyro_dps.z = g.z * curr_GyroScale * 1000;    // 1000 to go from mdps to dps
 }
 
-/*
+/**
  *  Helper function to both read in IMU data, then calculate human-readable vals
  */
 void LSM6::readCalc(void)
 {
   read();        // Read in IMU
-  calcAccG();    // Calc Gs
+  calcAccMPS2(); // Calc m/s^2 - But also does Gs on the way
   calcGyroDPS(); // Calc DPS
 }
-
 
 
 /**
