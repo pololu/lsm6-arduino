@@ -2,6 +2,7 @@
 
 Version: 1.0.5<br>
 Release date: 2016 January 19<br>
+[![Build Status](https://travis-ci.org/pololu/lsm6-arduino.svg?branch=master)](https://travis-ci.org/pololu/lsm6-arduino)<br/>
 [www.pololu.com](https://www.pololu.com/)
 
 ## Summary
