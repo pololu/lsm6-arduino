@@ -106,6 +106,7 @@ class LSM6
     void readAcc(void);
     void readGyro(void);
     void read(void);
+    void burstRead(uint8_t initialReg, void* output, uint8_t howMany);
 
     void setTimeout(uint16_t timeout);
     uint16_t getTimeout(void);

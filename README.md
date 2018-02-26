@@ -106,6 +106,16 @@ An example sketch is available that shows how to use the library. You can access
 * `void read(void)`<br>
   Takes a reading from both the accelerometer and gyro and stores the values in the vectors `a` and `g`.
 
+* `void burstRead(uint8_t initialReg, void* output, uint8_t howMany)`<br>
+  Reads multiple values out of one or several registers. Exact behaviour depends on whether the auto-increment flag is on (IF_INC bit on CTRL3_C) and the Rounding functions enabled (see section 4.6 of [Application note](http://www.st.com/resource/en/application_note/dm00175930.pdf)).
+
+  For example, you can do:
+
+        uint8_t data[24];
+        imu.burstRead(LSM6::FIFO_DATA_OUT_L, data, sizeof(data));
+
+  to read 24 bytes worth of data from the device FIFO (24 bytes equals two full XYZ samples of gyro and accelerometer data, if you configured to store both in the FIFO). Using this approach is *much* faster than the equivalent of reading the FIFO_DATA_OUT_L / FIFO_DATA_OUT_H registers one by one.
+
 * `void setTimeout(uint16_t timeout)`<br>
   Sets a timeout period in milliseconds after which the read functions will abort if the sensor is not ready. A value of 0 disables the timeout.
 
@@ -118,3 +128,4 @@ An example sketch is available that shows how to use the library. You can access
 ## Version history
 
 * 1.0.0 (2016 Jan 19): Original release.
+* 1.0.1 (2018 Feb 26): Added burstRead().

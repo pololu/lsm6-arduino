@@ -210,6 +210,28 @@ void LSM6::read(void)
   readGyro();
 }
 
+void LSM6::burstRead(uint8_t initialReg, void* output, uint8_t howMany)
+{
+  // select starting register
+  Wire.beginTransmission(address);
+  Wire.write(initialReg);
+  Wire.endTransmission();
+
+  uint8_t* buff = (uint8_t*) output;
+  Wire.requestFrom(address, howMany);
+  uint16_t millis_start = millis();
+  while (Wire.available() < howMany) {
+    if (io_timeout > 0 && ((uint16_t)millis() - millis_start) > io_timeout)
+    {
+      did_timeout = true;
+      return;
+    }
+  }
+  for (uint8_t i = 0; i < howMany; i++)
+    *(buff++) = Wire.read();
+}
+
+
 void LSM6::vector_normalize(vector<float> *a)
 {
   float mag = sqrt(vector_dot(a, a));
