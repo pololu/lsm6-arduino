@@ -3,21 +3,35 @@
 Version: 2.0.0<br>
 Release date: 2021 March 27<br>
 Released here: [RevEng_LSM6DS33 GitHub](https://github.com/acrandal/RevEng_LSM6DS33)<br>
-Based on Pololu driver: [www.pololu.com](https://www.pololu.com/)
+Based on the Pololu LSM6 driver: [www.pololu.com](https://www.pololu.com/)
 
 ## Summary
 
-This is a library for the Arduino IDE that helps interface with STMicroelectronics' [LSM6DS33 3D accelerometer and gyro](https://www.pololu.com/product/2736). The library makes it simple to configure the LSM6DS33 and read the raw accelerometer and gyro data through I&sup2;C.
+This is a library for the Arduino IDE/CLI that helps interface with ST Microelectronics' LSM6DS33 iNEMO 6DoF inertial measurement unit (IMU).
+The library makes it simple to configure the LSM6DS33 and read the accelerometer and gyro data through I&sup2;C.
+This RevEng version of the driver also allows for setting the full scale ranges of the accelerometer and gyroscope to use the sensor in a wide range of applications.
+
+
+## Device documentation
+
+ST Microelectronics Documentation:
+* Main web page: https://www.st.com/en/mems-and-sensors/lsm6ds33.html
+* Sensor device datasheet: https://www.st.com/resource/en/datasheet/lsm6ds33.pdf
+
 
 ## Supported platforms
 
-This library is designed to work with the Arduino IDE versions 1.6.x or later; we have not tested it with earlier versions.  This library should support any Arduino-compatible board, including the [Pololu A-Star 32U4 controllers](https://www.pololu.com/category/149/a-star-programmable-controllers).
+This library is designed to work with the Arduino IDE/CLI versions 1.6.x or later.  It has not been tested with earlier versions.
+This library should support any Arduino-compatible board.
+
 
 ## Getting started
 
 ### Hardware
 
 An [LSM6DS33 carrier](https://www.pololu.com/product/2736) can be purchased from Pololu's website.  Before continuing, careful reading of the [product page](https://www.pololu.com/product/2736) as well as the LSM6 datasheet and application note is recommended.
+
+
 
 Make the following connections between the Arduino and the LSM6 board:
 
@@ -142,6 +156,10 @@ Example sketches are available that shows how to use the library. You can access
 * `bool timeoutOccurred(void)`<br>
   Indicates whether a read timeout has occurred since the last call to `timeoutOccurred()`.
 
+
+## Limitations
+
+* This driver does not support a SPI bus interface with the LSM6.
 
 ## Version history
 

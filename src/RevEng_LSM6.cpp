@@ -115,6 +115,7 @@ bool LSM6::init(deviceType device, sa0State sa0)
 
   switch (device)
   {
+    case device_auto:           // TODO: How should this be handled? - BUGFIX: done to pass CI now
     case device_DS33:
       address = (sa0 == sa0_high) ? DS33_SA0_HIGH_ADDRESS : DS33_SA0_LOW_ADDRESS;
       break;
