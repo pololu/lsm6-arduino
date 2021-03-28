@@ -15,15 +15,16 @@ significant bit) at this FS setting, so the raw reading of
 */
 
 #include <Wire.h>
-#include <LSM6.h>
+#include <RevEng_LSM6.h>
 
 LSM6 imu;
 
 char report[80];
 
+
 void setup()
 {
-  Serial.begin(9600);
+  Serial.begin(115200);
   Wire.begin();
 
   if (!imu.init())
@@ -31,6 +32,7 @@ void setup()
     Serial.println("Failed to detect and initialize IMU!");
     while (1);
   }
+
   imu.enableDefault();
 }
 

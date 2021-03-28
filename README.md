@@ -1,22 +1,37 @@
-# LSM6 library for Arduino
+# LSM6 (LSM6DS33) library for Arduino
 
-Version: 1.0.0<br>
-Release date: 2016 January 19<br>
-[www.pololu.com](https://www.pololu.com/)
+Version: 2.0.0<br>
+Release date: 2021 March 27<br>
+Released here: [RevEng_LSM6DS33 GitHub](https://github.com/acrandal/RevEng_LSM6DS33)<br>
+Based on the Pololu LSM6 driver: [www.pololu.com](https://www.pololu.com/)
 
 ## Summary
 
-This is a library for the Arduino IDE that helps interface with ST's [LSM6DS33 3D accelerometer and gyro](https://www.pololu.com/product/2736). The library makes it simple to configure the LSM6DS33 and read the raw accelerometer and gyro data through I&sup2;C.
+This is a library for the Arduino IDE/CLI that helps interface with ST Microelectronics' LSM6DS33 iNEMO 6DoF inertial measurement unit (IMU).
+The library makes it simple to configure the LSM6DS33 and read the accelerometer and gyro data through I&sup2;C.
+This RevEng version of the driver also allows for setting the full scale ranges of the accelerometer and gyroscope to use the sensor in a wide range of applications.
+
+
+## Device documentation
+
+ST Microelectronics Documentation:
+* Main web page: https://www.st.com/en/mems-and-sensors/lsm6ds33.html
+* Sensor device datasheet: https://www.st.com/resource/en/datasheet/lsm6ds33.pdf
+
 
 ## Supported platforms
 
-This library is designed to work with the Arduino IDE versions 1.6.x or later; we have not tested it with earlier versions.  This library should support any Arduino-compatible board, including the [Pololu A-Star 32U4 controllers](https://www.pololu.com/category/149/a-star-programmable-controllers).
+This library is designed to work with the Arduino IDE/CLI versions 1.6.x or later.  It has not been tested with earlier versions.
+This library should support any Arduino-compatible board.
+
 
 ## Getting started
 
 ### Hardware
 
 An [LSM6DS33 carrier](https://www.pololu.com/product/2736) can be purchased from Pololu's website.  Before continuing, careful reading of the [product page](https://www.pololu.com/product/2736) as well as the LSM6 datasheet and application note is recommended.
+
+
 
 Make the following connections between the Arduino and the LSM6 board:
 
@@ -60,7 +75,7 @@ If this does not work, you can manually install the library:
 
 ## Examples
 
-An example sketch is available that shows how to use the library. You can access it from the Arduino IDE by opening the "File" menu, selecting "Examples", and then selecting "LSM6". If you cannot find the example, the library was probably installed incorrectly and you should retry the installation instructions above.
+Example sketches are available that shows how to use the library. You can access it from the Arduino IDE by opening the "File" menu, selecting "Examples", and then selecting "RevEng_LSM6D33". If you cannot find the example, the library was probably installed incorrectly and you should retry the installation instructions above.
 
 ## Library reference
 
@@ -69,6 +84,15 @@ An example sketch is available that shows how to use the library. You can access
 
 * `vector<int16_t> g`<br>
   The last values read from the gyro.
+
+* `vector<float> acc_g`<br>
+  The last values read from the accelerometer converted to gravities.
+
+* `vector<float> acc_mps2`<br>
+  The last values read from the accelerometer converted to m/s^2.
+
+* `vector<float> gyro_dps`<br>
+  The last values read from the gyroscope converted to degress per second.
 
 * `uint8_t last_status`<br>
   The status of the last I&sup2;C write transmission. See the [`Wire.endTransmission()` documentation](http://arduino.cc/en/Reference/WireEndTransmission) for return values.
@@ -79,13 +103,19 @@ An example sketch is available that shows how to use the library. You can access
 * `bool init(deviceType device, sa0State sa0)`<br>
   Initializes the library with the device being used (`device_DS33` or `device_auto`) and the state of the SA0 pin (`sa0_low`, `sa0_high`, or `sa0_auto`), which determines the least significant bit of the I&sup2;C slave address. Constants for these arguments are defined in LSM6.h. Both of these arguments are optional; if they are not specified, the library will try to automatically detect the device address. A boolean is returned indicating whether the type of LSM6 device was successfully determined (if necessary).
 
-* `void getDeviceType(void)`<br>
+* `deviceType getDeviceType(void)`<br>
   Returns the device type specified to or detected by `init()`.
 
 * `void enableDefault(void)`<br>
   Turns on the accelerometer and gyro and enables a consistent set of default settings.
 
   This function will reset the accelerometer to &plusmn;2&nbsp;g full scale and the gyro to &plusmn;245&nbsp;dps. See the comments in LSM6.cpp for a full explanation of the settings.
+
+* `void setAccScale( accScale scale )`<br>
+  Sets the acclerometer scale from the various &plusmn; gravity ranges available. The options for accScale are: ACC2g, ACC4g, ACC8g, ACC16g.
+
+* `void setGyroScale( gyroScale scale )`<br>
+  Sets the gyro scale from the various ranges for degress per second available. The options for gyroScale are: G125dps, G245dps, G500dps, G1000dps, G2000dps.
 
 * `void writeReg(uint8_t reg, uint8_t value)`<br>
   Writes a sensor register with the given value.
@@ -105,6 +135,18 @@ An example sketch is available that shows how to use the library. You can access
 * `void read(void)`<br>
   Takes a reading from both the accelerometer and gyro and stores the values in the vectors `a` and `g`.
 
+* `void calcAccG(void)`<br>
+  Uses the currently stored values in the vector `a` to calculate their equivalent values in gravities. This calculation takes into account the accelerometer's selected gain (full scale setting). These values are stored in a member vector called `acc_g`.
+
+* `void calcAccMPS2(void)`<br>
+  Uses the currently stored values in the vector `a` to calculate their equivalent values in meters per second per second (m/s^2). This calculation takes into account the accelerometer's selected gain (full scale setting). These values are stored in a member vector called `acc_mps2`.
+
+* `void calcGyroDPS(void)`<br>
+  Uses the currently stored values in the vector `g` to calculate their equivalent values in degrees per second (dps). This calculation takes into account the gyroscope's selected gain (full scale setting). These values are stored in a member vector called `gyro_dps`.
+
+* `void readCalc(void)`<br>
+  Takes a reading from both the accelerometer and gyro and stores the values in the vectors `a` and `g`, then it runs calculates Gravities, m/s^2, and degrees per second, which fill the `acc_g`, `acc_mps2,` and `gyro_dps` vectors.
+
 * `void setTimeout(uint16_t timeout)`<br>
   Sets a timeout period in milliseconds after which the read functions will abort if the sensor is not ready. A value of 0 disables the timeout.
 
@@ -114,6 +156,12 @@ An example sketch is available that shows how to use the library. You can access
 * `bool timeoutOccurred(void)`<br>
   Indicates whether a read timeout has occurred since the last call to `timeoutOccurred()`.
 
+
+## Limitations
+
+* This driver does not support a SPI bus interface with the LSM6.
+
 ## Version history
 
+* 2.0.0 (2021 Mar 27): Initial RevEng updates with Full Scale APIs - Aaron S. Crandall \<crandall@gonzaga.edu>
 * 1.0.0 (2016 Jan 19): Original release.

@@ -1,4 +1,14 @@
-#include <LSM6.h>
+/**
+ * RevEng_LSM6.cpp - Driver implementation for 
+ *            LSM6DS33 iNEMO inertial module for Arduino
+ *
+ * Original code: Pololu  <inbox@pololu.com>
+ * Full Scale API and SI unit conversion updates by:
+ *       Aaron Crandall <acrandal@gmail.com>
+ *
+ */
+
+#include <RevEng_LSM6.h>
 #include <Wire.h>
 #include <math.h>
 
@@ -12,6 +22,35 @@
 #define TEST_REG_ERROR -1
 
 #define DS33_WHO_ID    0x69
+
+// Accelerometer and Gyro scaling bitmasks for
+//  CTRL1_XL and CTRL2_G registers
+#define ACC_FS_XL2g  0b00000000   // FS_XL 00
+#define ACC_FS_XL16g 0b00000100   // FS_XL 01
+#define ACC_FS_XL4g  0b00001000   // FS_XL 10
+#define ACC_FS_XL8g  0b00001100   // FS_XL 11
+
+#define GYRO_FS_125dps  0b00000010 // FS_G 00
+#define GYRO_FS_245dps  0b00000000 // FS_G 00
+#define GYRO_FS_500dps  0b00000100 // FS_G 01
+#define GYRO_FS_1000dps 0b00001000 // FS_G_10
+#define GYRO_FS_2000dps 0b00001100 // FS_G 11
+
+// Defined scaling factors for Gravities and Degrees Per second
+//  -- found in LSM6D33 spec sheet, page 15
+#define ACC_SCALE_FACTOR_2g  0.061    // Raw value * factor == mg
+#define ACC_SCALE_FACTOR_4g  0.122
+#define ACC_SCALE_FACTOR_8g  0.244
+#define ACC_SCALE_FACTOR_16g 0.488
+
+#define GYRO_SCALE_FACTOR_125dps   4.375  // Raw value * factor == mdps
+#define GYRO_SCALE_FACTOR_245dps   8.750
+#define GYRO_SCALE_FACTOR_500dps  17.500
+#define GYRO_SCALE_FACTOR_1000dps 35.000
+#define GYRO_SCALE_FACTOR_2000dps 70.000
+
+#define G2MPS2 9.80665         // Scaling factor to convert Gravities to M/S^2
+
 
 // Constructors ////////////////////////////////////////////////////////////////
 
@@ -76,6 +115,7 @@ bool LSM6::init(deviceType device, sa0State sa0)
 
   switch (device)
   {
+    case device_auto:           // TODO: How should this be handled? - BUGFIX: done to pass CI now
     case device_DS33:
       address = (sa0 == sa0_high) ? DS33_SA0_HIGH_ADDRESS : DS33_SA0_LOW_ADDRESS;
       break;
@@ -104,12 +144,14 @@ void LSM6::enableDefault(void)
     // 0x80 = 0b10000000
     // ODR = 1000 (1.66 kHz (high performance)); FS_XL = 00 (+/-2 g full scale)
     writeReg(CTRL1_XL, 0x80);
+    setAccScale( ACC2g );      // set accelerometer scale to +/-2 g full scale
 
     // Gyro
 
     // 0x80 = 0b010000000
     // ODR = 1000 (1.66 kHz (high performance)); FS_XL = 00 (245 dps)
     writeReg(CTRL2_G, 0x80);
+    setGyroScale( G245dps );  // set gyroscope scale to 245 dps
 
     // Common
 
@@ -119,6 +161,133 @@ void LSM6::enableDefault(void)
   }
 }
 
+/**
+ * Set the Accelerometer Scale:
+ *  ACC2g, ACC4g, ACC8g, ACC16g
+ */
+void LSM6::setAccScale( accScale scale )
+{
+
+  uint8_t curr_CTRL1_XL;
+  curr_CTRL1_XL = readReg(CTRL1_XL);   // Read in current Accel config
+                                       // curr_CTRL1_XL is a member variable to the LSM6 class
+  curr_CTRL1_XL &= 0b11110011;         // Mask off the FS_XL bits
+
+  switch( scale )                      // Choose new setting mask
+  {
+    case ACC2g:
+      curr_AccScale = ACC_FS_XL2g;     // Set the FS_XL bits to 00
+      curr_AccScaleFactor = ACC_SCALE_FACTOR_2g;
+      break;
+    case ACC16g:
+      curr_AccScale = ACC_FS_XL16g;    // Set the FS_XL bits to 01
+      curr_AccScaleFactor = ACC_SCALE_FACTOR_16g;
+      break;
+    case ACC4g:
+      curr_AccScale = ACC_FS_XL4g;     // Set the FS_XL bits to 10
+      curr_AccScaleFactor = ACC_SCALE_FACTOR_4g;
+      break;
+    case ACC8g:
+      curr_AccScale = ACC_FS_XL8g;     // Set the FS_XL bits to 11
+      curr_AccScaleFactor = ACC_SCALE_FACTOR_8g;
+      break;
+    default:
+      Serial.println(" Invalid accelerometer scaling factor chosen.");
+  }
+  curr_CTRL1_XL |= curr_AccScale;
+  writeReg(CTRL1_XL, curr_CTRL1_XL);   // Write new Accel configuration
+}
+
+/**
+ *  Set the scale for the gyroscope. Options are:
+ *   G125dps, G245dps, G500dps, G1000dps, G2000dps
+ */
+void LSM6::setGyroScale( gyroScale scale )
+{
+  uint8_t curr_CTRL2_G;
+  curr_CTRL2_G = readReg(CTRL2_G);       // Read in current Gyro config
+                                         // curr_CTRL2_G is a member variable to the LSM6 class
+  curr_CTRL2_G &= 0b11110001;            // Mask off the FS_G bits
+
+  switch( scale )                        // Choose new setting mask
+  {
+    case G125dps:
+      curr_GyroScale = GYRO_FS_125dps;   // Set the FS_G bits to 001
+      curr_GyroScaleFactor = GYRO_SCALE_FACTOR_125dps;
+      break;
+    case G245dps:
+      curr_GyroScale = GYRO_FS_245dps;   // Set the FS_G bits to 000
+      curr_GyroScaleFactor = GYRO_SCALE_FACTOR_245dps;
+      break;
+    case G500dps:
+      curr_GyroScale = GYRO_FS_500dps;   // Set the FS_G bits to 010
+      curr_GyroScaleFactor = GYRO_SCALE_FACTOR_500dps;
+      break;
+    case G1000dps:
+      curr_GyroScale = GYRO_FS_1000dps;  // Set the FS_G bits to 100
+      curr_GyroScaleFactor = GYRO_SCALE_FACTOR_1000dps;
+      break;
+    case G2000dps:
+      curr_GyroScale = GYRO_FS_2000dps;  // Set the FS_G bits to 110
+      curr_GyroScaleFactor = GYRO_SCALE_FACTOR_2000dps;
+      break;
+    default:
+      Serial.println(" Invalid Gyroscope scaling factor chosen.");
+  }
+  curr_CTRL2_G |= curr_GyroScale;
+  writeReg(CTRL2_G, curr_CTRL2_G);       // Write new Accel configuration
+}
+
+
+/**
+ *  Calculate the accelerometer values as gravities (G)
+ *   This is based on the currently set accelerometer scale (which gives mg)
+ */
+void LSM6::calcAccG(void)
+{
+  acc_g.x = a.x * curr_AccScaleFactor / 1000; // div 1000 to go from mg to g
+  acc_g.y = a.y * curr_AccScaleFactor / 1000;
+  acc_g.z = a.z * curr_AccScaleFactor / 1000; 
+}
+
+
+/**
+ *  Fills the acc_mps2 vector with the current acceleration values in m/s^2
+ *   ** Note: Could be made faster by copying the calcAccG code into here
+ *            That would bypass 3 assignments and 3 floating point calculations
+ */
+void LSM6::calcAccMPS2(void)
+{
+  calcAccG();
+  acc_mps2.x = acc_g.x * G2MPS2;  // Converts from Gravities to m/s^2
+  acc_mps2.y = acc_g.y * G2MPS2;
+  acc_mps2.z = acc_g.z * G2MPS2; 
+}
+
+/**
+ *  Calculate the gyro values as degress per second
+ *   This is based on the currently set gyro scale (which gives mdps)
+ */
+void LSM6::calcGyroDPS(void)
+{
+  gyro_dps.x = g.x * curr_GyroScaleFactor / 1000; // div 1000 -> mdps to dps
+  gyro_dps.y = g.y * curr_GyroScaleFactor / 1000;  
+  gyro_dps.z = g.z * curr_GyroScaleFactor / 1000;
+}
+
+/**
+ *  Helper function to both read in IMU data, then calculate human-readable vals
+ */
+void LSM6::readCalc(void)
+{
+  read();        // Read in IMU
+  calcAccMPS2(); // Calc m/s^2 - But also does Gs on the way
+  calcGyroDPS(); // Calc DPS
+}
+
+/**
+ *  Write to a single register at reg with a given byte
+ */
 void LSM6::writeReg(uint8_t reg, uint8_t value)
 {
   Wire.beginTransmission(address);
@@ -127,6 +296,10 @@ void LSM6::writeReg(uint8_t reg, uint8_t value)
   last_status = Wire.endTransmission();
 }
 
+
+/**
+ *  Read out a single byte at a given register address
+ */
 uint8_t LSM6::readReg(uint8_t reg)
 {
   uint8_t value;
