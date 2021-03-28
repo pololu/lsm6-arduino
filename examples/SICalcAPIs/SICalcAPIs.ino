@@ -32,12 +32,10 @@
 
 LSM6 imu;
 
-char report[80];
-
 
 void setup()
 {
-  Serial.begin(9600);
+  Serial.begin(115200);
   Wire.begin();
 
   if (!imu.init())
@@ -45,6 +43,7 @@ void setup()
     Serial.println("Failed to detect and initialize IMU!");
     while (1);
   }
+
   imu.enableDefault();  // Sets accelerometer to +/- 2g and gyro to 245 dps scales
 }
 
