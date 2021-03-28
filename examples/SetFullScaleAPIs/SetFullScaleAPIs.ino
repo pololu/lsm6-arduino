@@ -30,7 +30,7 @@
  */
 
 #include <Wire.h>
-#include <LSM6.h>
+#include <RevEng_LSM6.h>
 
 LSM6 imu;
 
