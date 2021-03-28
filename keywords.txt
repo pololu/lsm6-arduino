@@ -1,5 +1,16 @@
+#######################################
+# Syntax coloring map for
+# RevEng LSM6DS33 Accel/Gryo sensor api
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
 LSM6	KEYWORD1
 
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
 init	KEYWORD2
 getDeviceType	KEYWORD2
 enableDefault	KEYWORD2

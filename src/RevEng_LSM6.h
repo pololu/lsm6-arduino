@@ -1,20 +1,20 @@
-/*
- * LSM6.h - API and defines for LSM6DS33 iNEMO inertial module for Arduino
+/**
+ * RevEng_LSM6.h - API and defines for LSM6DS33 iNEMO inertial module for Arduino
  *
  * Original code: Pololu  <inbox@pololu.com>
  * Full Scale API and SI unit conversion updates by:
- *       Aaron Crandall <acrandal@gmail.com>
+ *       Aaron S. Crandall <crandall@gonzaga.edu>
  *
  */
 
-#ifndef LSM6_h
-#define LSM6_h
+
+#ifndef __RE_LSM6DS33_h
+#define __RE_LSM6DS33_h
 
 #include <Arduino.h>
 
 enum accScale { ACC2g, ACC4g, ACC8g, ACC16g }; 
 enum gyroScale { G125dps, G245dps, G500dps, G1000dps, G2000dps };
-
 
 class LSM6
 {
@@ -100,8 +100,8 @@ class LSM6
       MD2_CFG           = 0x5F,
     };
 
-    vector<int16_t> a;      // accelerometer readings
-    vector<int16_t> g;      // gyro readings
+    vector<int16_t> a; // accelerometer readings
+    vector<int16_t> g; // gyro readings
 
     vector<float> acc_g;    // accelerometer readings in G
     vector<float> acc_mps2; // accelerometer readings in m/s^2
@@ -115,7 +115,6 @@ class LSM6
 
     uint8_t last_status; // status of last I2C transmission
 
-    //**************** Member interfaces ****************************//
     LSM6(void);
 
     bool init(deviceType device = device_auto, sa0State sa0 = sa0_auto);

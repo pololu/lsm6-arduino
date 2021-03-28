@@ -1,13 +1,13 @@
-# LSM6 library for Arduino
+# LSM6 (LSM6DS33) library for Arduino
 
-Version: 1.0.5<br>
-Release date: 2016 January 19<br>
-[![Build Status](https://travis-ci.org/pololu/lsm6-arduino.svg?branch=master)](https://travis-ci.org/pololu/lsm6-arduino)<br/>
-[www.pololu.com](https://www.pololu.com/)
+Version: 2.0.0<br>
+Release date: 2021 March 27<br>
+Released here: [RevEng_LSM6DS33 GitHub](https://github.com/acrandal/RevEng_LSM6DS33)<br>
+Based on Pololu driver: [www.pololu.com](https://www.pololu.com/)
 
 ## Summary
 
-This is a library for the Arduino IDE that helps interface with ST's [LSM6DS33 3D accelerometer and gyro](https://www.pololu.com/product/2736). The library makes it simple to configure the LSM6DS33 and read the raw accelerometer and gyro data through I&sup2;C.
+This is a library for the Arduino IDE that helps interface with STMicroelectronics' [LSM6DS33 3D accelerometer and gyro](https://www.pololu.com/product/2736). The library makes it simple to configure the LSM6DS33 and read the raw accelerometer and gyro data through I&sup2;C.
 
 ## Supported platforms
 
@@ -61,7 +61,7 @@ If this does not work, you can manually install the library:
 
 ## Examples
 
-Example sketches are available that shows how to use the library. You can access it from the Arduino IDE by opening the "File" menu, selecting "Examples", and then selecting "LSM6". If you cannot find the example, the library was probably installed incorrectly and you should retry the installation instructions above.
+Example sketches are available that shows how to use the library. You can access it from the Arduino IDE by opening the "File" menu, selecting "Examples", and then selecting "RevEng_LSM6D33". If you cannot find the example, the library was probably installed incorrectly and you should retry the installation instructions above.
 
 ## Library reference
 
@@ -142,7 +142,8 @@ Example sketches are available that shows how to use the library. You can access
 * `bool timeoutOccurred(void)`<br>
   Indicates whether a read timeout has occurred since the last call to `timeoutOccurred()`.
 
+
 ## Version history
 
+* 2.0.0 (2021 Mar 27): Initial RevEng updates with Full Scale APIs - Aaron S. Crandall \<crandall@gonzaga.edu>
 * 1.0.0 (2016 Jan 19): Original release.
-* 1.0.5 (2017 Mar 04): Full Scale and SI unit APIs added.

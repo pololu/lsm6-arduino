@@ -1,5 +1,5 @@
-/*
- * LSM6.cpp - Driver implementation for 
+/**
+ * RevEng_LSM6.cpp - Driver implementation for 
  *            LSM6DS33 iNEMO inertial module for Arduino
  *
  * Original code: Pololu  <inbox@pololu.com>
@@ -8,7 +8,7 @@
  *
  */
 
-#include <LSM6.h>
+#include <RevEng_LSM6.h>
 #include <Wire.h>
 #include <math.h>
 
@@ -82,7 +82,6 @@ uint16_t LSM6::getTimeout()
   return io_timeout;
 }
 
-
 bool LSM6::init(deviceType device, sa0State sa0)
 {
   // perform auto-detection unless device type and SA0 state were both specified
@@ -149,7 +148,7 @@ void LSM6::enableDefault(void)
     // Gyro
 
     // 0x80 = 0b010000000
-    // ODR = 1000 (1.66 kHz (high performance)); FS_G = 00 (245 dps)
+    // ODR = 1000 (1.66 kHz (high performance)); FS_XL = 00 (245 dps)
     writeReg(CTRL2_G, 0x80);
     setGyroScale( G245dps );  // set gyroscope scale to 245 dps
 
@@ -250,6 +249,7 @@ void LSM6::calcAccG(void)
   acc_g.z = a.z * curr_AccScaleFactor / 1000; 
 }
 
+
 /**
  *  Fills the acc_mps2 vector with the current acceleration values in m/s^2
  *   ** Note: Could be made faster by copying the calcAccG code into here
@@ -284,7 +284,6 @@ void LSM6::readCalc(void)
   calcGyroDPS(); // Calc DPS
 }
 
-
 /**
  *  Write to a single register at reg with a given byte
  */
@@ -295,6 +294,7 @@ void LSM6::writeReg(uint8_t reg, uint8_t value)
   Wire.write(value);
   last_status = Wire.endTransmission();
 }
+
 
 /**
  *  Read out a single byte at a given register address
