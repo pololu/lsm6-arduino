@@ -8,10 +8,13 @@
 // and sets the last bit correctly based on reads and writes
 #define DS33_SA0_HIGH_ADDRESS 0b1101011
 #define DS33_SA0_LOW_ADDRESS  0b1101010
+#define DSO_SA0_HIGH_ADDRESS  0b1101011
+#define DSO_SA0_LOW_ADDRESS   0b1101010
 
 #define TEST_REG_ERROR -1
 
 #define DS33_WHO_ID    0x69
+#define DSO_WHO_ID    0x6C
 
 // Constructors ////////////////////////////////////////////////////////////////
 
@@ -65,6 +68,23 @@ bool LSM6::init(deviceType device, sa0State sa0)
       }
     }
 
+    // check for LSM6DSO if device is unidentified or was specified to be this type
+    if (device == device_auto || device == device_DSO)
+    {
+      // check SA0 high address unless SA0 was specified to be low
+      if (sa0 != sa0_low && testReg(DSO_SA0_HIGH_ADDRESS, WHO_AM_I) == DSO_WHO_ID)
+      {
+        sa0 = sa0_high;
+        if (device == device_auto) { device = device_DSO; }
+      }
+      // check SA0 low address unless SA0 was specified to be high
+      else if (sa0 != sa0_high && testReg(DSO_SA0_LOW_ADDRESS, WHO_AM_I) == DSO_WHO_ID)
+      {
+        sa0 = sa0_low;
+        if (device == device_auto) { device = device_DSO; }
+      }
+    }
+
     // make sure device and SA0 were successfully detected; otherwise, indicate failure
     if (device == device_auto || sa0 == sa0_auto)
     {
@@ -80,6 +100,10 @@ bool LSM6::init(deviceType device, sa0State sa0)
       address = (sa0 == sa0_high) ? DS33_SA0_HIGH_ADDRESS : DS33_SA0_LOW_ADDRESS;
       break;
 
+    case device_DSO:
+      address = (sa0 == sa0_high) ? DSO_SA0_HIGH_ADDRESS : DSO_SA0_LOW_ADDRESS;
+      break;
+
     default:
       return false; // this should not ever happen
   }
@@ -93,14 +117,14 @@ Enables the LSM6's accelerometer and gyro. Also:
   +/- 2 g for accelerometer and 245 dps for gyro
 - Selects 1.66 kHz (high performance) ODR (output data rate) for accelerometer
   and 1.66 kHz (high performance) ODR for gyro. (These are the ODR settings for
-  which the electrical characteristics are specified in the datasheet.)
+  which the electrical characteristics are specified in the LSM6DS33 datasheet.)
 - Enables automatic increment of register address during multiple byte access
 Note that this function will also reset other settings controlled by
 the registers it writes to.
 */
 void LSM6::enableDefault(void)
 {
-  if (_device == device_DS33)
+  if (_device == device_DS33 || _device == device_DSO)
   {
     // Accelerometer
 
@@ -111,7 +135,7 @@ void LSM6::enableDefault(void)
     // Gyro
 
     // 0x80 = 0b010000000
-    // ODR = 1000 (1.66 kHz (high performance)); FS_XL = 00 (245 dps)
+    // ODR = 1000 (1.66 kHz (high performance)); FS_G = 00 (245 dps for DS33, 250 dps for DSO)
     writeReg(CTRL2_G, 0x80);
 
     // Common

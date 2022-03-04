@@ -11,7 +11,7 @@ class LSM6
       T x, y, z;
     };
 
-    enum deviceType { device_DS33, device_auto };
+    enum deviceType { device_DS33, device_DSO, device_auto };
     enum sa0State { sa0_low, sa0_high, sa0_auto };
 
     // register addresses
