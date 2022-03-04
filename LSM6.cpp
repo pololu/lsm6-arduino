@@ -24,9 +24,9 @@ LSM6::LSM6()
 #else
   : bus(nullptr)
 #endif
-  , address(AddressDefault)
   , _device(device_auto)
-
+{
+}
 
 // Public Methods //////////////////////////////////////////////////////////////
 

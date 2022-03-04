@@ -116,8 +116,8 @@ class LSM6
     static void vector_normalize(vector<float> *a);
 
   private:
-    deviceType _device; // chip type
     TwoWire * bus;
+    deviceType _device; // chip type
     uint8_t address;
 
     int16_t testReg(uint8_t address, regAddr reg);
