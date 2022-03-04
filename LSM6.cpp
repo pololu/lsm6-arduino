@@ -18,7 +18,7 @@
 
 // Constructors ////////////////////////////////////////////////////////////////
 
-LSM6::LSM6(void)
+LSM6::LSM6()
 {
   _device = device_auto;
 }
@@ -101,7 +101,7 @@ Enables the LSM6's accelerometer and gyro. Also:
 Note that this function will also reset other settings controlled by
 the registers it writes to.
 */
-void LSM6::enableDefault(void)
+void LSM6::enableDefault()
 {
   if (_device == device_DS33 || _device == device_DSO)
   {
@@ -148,7 +148,7 @@ uint8_t LSM6::readReg(uint8_t reg)
 }
 
 // Reads the 3 accelerometer channels and stores them in vector a
-void LSM6::readAcc(void)
+void LSM6::readAcc()
 {
   Wire.beginTransmission(address);
   // automatic increment of register address is enabled by default (IF_INC in CTRL3_C)
@@ -170,7 +170,7 @@ void LSM6::readAcc(void)
 }
 
 // Reads the 3 gyro channels and stores them in vector g
-void LSM6::readGyro(void)
+void LSM6::readGyro()
 {
   Wire.beginTransmission(address);
   // automatic increment of register address is enabled by default (IF_INC in CTRL3_C)
@@ -192,7 +192,7 @@ void LSM6::readGyro(void)
 }
 
 // Reads all 6 channels of the LSM6 and stores them in the object variables
-void LSM6::read(void)
+void LSM6::read()
 {
   readAcc();
   readGyro();

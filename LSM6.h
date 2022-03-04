@@ -2,6 +2,7 @@
 #define LSM6_h
 
 #include <Arduino.h>
+#include <Wire.h>
 
 class LSM6
 {
@@ -92,20 +93,19 @@ class LSM6
 
     uint8_t last_status; // status of last I2C transmission
 
-    LSM6(void);
+    LSM6();
 
     bool init(deviceType device = device_auto, sa0State sa0 = sa0_auto);
-    deviceType getDeviceType(void) { return _device; }
+    deviceType getDeviceType() { return _device; }
 
-    void enableDefault(void);
-
+    void enableDefault();
 
     void writeReg(uint8_t reg, uint8_t value);
     uint8_t readReg(uint8_t reg);
 
-    void readAcc(void);
-    void readGyro(void);
-    void read(void);
+    void readAcc();
+    void readGyro();
+    void read();
 
     // vector functions
     template <typename Ta, typename Tb, typename To> static void vector_cross(const vector<Ta> *a, const vector<Tb> *b, vector<To> *out);
