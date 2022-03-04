@@ -21,30 +21,9 @@
 LSM6::LSM6(void)
 {
   _device = device_auto;
-
-  io_timeout = 0;  // 0 = no timeout
-  did_timeout = false;
 }
 
 // Public Methods //////////////////////////////////////////////////////////////
-
-// Did a timeout occur in readAcc(), readGyro(), or read() since the last call to timeoutOccurred()?
-bool LSM6::timeoutOccurred()
-{
-  bool tmp = did_timeout;
-  did_timeout = false;
-  return tmp;
-}
-
-void LSM6::setTimeout(uint16_t timeout)
-{
-  io_timeout = timeout;
-}
-
-uint16_t LSM6::getTimeout()
-{
-  return io_timeout;
-}
 
 bool LSM6::init(deviceType device, sa0State sa0)
 {
@@ -161,9 +140,9 @@ uint8_t LSM6::readReg(uint8_t reg)
   Wire.beginTransmission(address);
   Wire.write(reg);
   last_status = Wire.endTransmission();
+
   Wire.requestFrom(address, (uint8_t)1);
   value = Wire.read();
-  Wire.endTransmission();
 
   return value;
 }
@@ -175,17 +154,8 @@ void LSM6::readAcc(void)
   // automatic increment of register address is enabled by default (IF_INC in CTRL3_C)
   Wire.write(OUTX_L_XL);
   Wire.endTransmission();
+
   Wire.requestFrom(address, (uint8_t)6);
-
-  uint16_t millis_start = millis();
-  while (Wire.available() < 6) {
-    if (io_timeout > 0 && ((uint16_t)millis() - millis_start) > io_timeout)
-    {
-      did_timeout = true;
-      return;
-    }
-  }
-
   uint8_t xla = Wire.read();
   uint8_t xha = Wire.read();
   uint8_t yla = Wire.read();
@@ -206,17 +176,8 @@ void LSM6::readGyro(void)
   // automatic increment of register address is enabled by default (IF_INC in CTRL3_C)
   Wire.write(OUTX_L_G);
   Wire.endTransmission();
+
   Wire.requestFrom(address, (uint8_t)6);
-
-  uint16_t millis_start = millis();
-  while (Wire.available() < 6) {
-    if (io_timeout > 0 && ((uint16_t)millis() - millis_start) > io_timeout)
-    {
-      did_timeout = true;
-      return;
-    }
-  }
-
   uint8_t xlg = Wire.read();
   uint8_t xhg = Wire.read();
   uint8_t ylg = Wire.read();

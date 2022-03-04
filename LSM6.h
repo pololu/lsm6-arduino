@@ -107,10 +107,6 @@ class LSM6
     void readGyro(void);
     void read(void);
 
-    void setTimeout(uint16_t timeout);
-    uint16_t getTimeout(void);
-    bool timeoutOccurred(void);
-
     // vector functions
     template <typename Ta, typename Tb, typename To> static void vector_cross(const vector<Ta> *a, const vector<Tb> *b, vector<To> *out);
     template <typename Ta, typename Tb> static float vector_dot(const vector<Ta> *a, const vector<Tb> *b);
@@ -119,9 +115,6 @@ class LSM6
   private:
     deviceType _device; // chip type
     uint8_t address;
-
-    uint16_t io_timeout;
-    bool did_timeout;
 
     int16_t testReg(uint8_t address, regAddr reg);
 };
