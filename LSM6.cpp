@@ -1,4 +1,4 @@
-#include <LSM6.h>
+#include "LSM6.h"
 #include <Wire.h>
 #include <math.h>
 
@@ -19,9 +19,14 @@
 // Constructors ////////////////////////////////////////////////////////////////
 
 LSM6::LSM6()
-{
-  _device = device_auto;
-}
+#if !defined(NO_GLOBAL_INSTANCES) && !defined(NO_GLOBAL_TWOWIRE)
+  : bus(&Wire)
+#else
+  : bus(nullptr)
+#endif
+  , address(AddressDefault)
+  , _device(device_auto)
+
 
 // Public Methods //////////////////////////////////////////////////////////////
 
@@ -127,22 +132,22 @@ void LSM6::enableDefault()
 
 void LSM6::writeReg(uint8_t reg, uint8_t value)
 {
-  Wire.beginTransmission(address);
-  Wire.write(reg);
-  Wire.write(value);
-  last_status = Wire.endTransmission();
+  bus->beginTransmission(address);
+  bus->write(reg);
+  bus->write(value);
+  last_status = bus->endTransmission();
 }
 
 uint8_t LSM6::readReg(uint8_t reg)
 {
   uint8_t value;
 
-  Wire.beginTransmission(address);
-  Wire.write(reg);
-  last_status = Wire.endTransmission();
+  bus->beginTransmission(address);
+  bus->write(reg);
+  last_status = bus->endTransmission();
 
-  Wire.requestFrom(address, (uint8_t)1);
-  value = Wire.read();
+  bus->requestFrom(address, (uint8_t)1);
+  value = bus->read();
 
   return value;
 }
@@ -150,18 +155,18 @@ uint8_t LSM6::readReg(uint8_t reg)
 // Reads the 3 accelerometer channels and stores them in vector a
 void LSM6::readAcc()
 {
-  Wire.beginTransmission(address);
+  bus->beginTransmission(address);
   // automatic increment of register address is enabled by default (IF_INC in CTRL3_C)
-  Wire.write(OUTX_L_XL);
-  Wire.endTransmission();
+  bus->write(OUTX_L_XL);
+  bus->endTransmission();
 
-  Wire.requestFrom(address, (uint8_t)6);
-  uint8_t xla = Wire.read();
-  uint8_t xha = Wire.read();
-  uint8_t yla = Wire.read();
-  uint8_t yha = Wire.read();
-  uint8_t zla = Wire.read();
-  uint8_t zha = Wire.read();
+  bus->requestFrom(address, (uint8_t)6);
+  uint8_t xla = bus->read();
+  uint8_t xha = bus->read();
+  uint8_t yla = bus->read();
+  uint8_t yha = bus->read();
+  uint8_t zla = bus->read();
+  uint8_t zha = bus->read();
 
   // combine high and low bytes
   a.x = (int16_t)(xha << 8 | xla);
@@ -172,18 +177,18 @@ void LSM6::readAcc()
 // Reads the 3 gyro channels and stores them in vector g
 void LSM6::readGyro()
 {
-  Wire.beginTransmission(address);
+  bus->beginTransmission(address);
   // automatic increment of register address is enabled by default (IF_INC in CTRL3_C)
-  Wire.write(OUTX_L_G);
-  Wire.endTransmission();
+  bus->write(OUTX_L_G);
+  bus->endTransmission();
 
-  Wire.requestFrom(address, (uint8_t)6);
-  uint8_t xlg = Wire.read();
-  uint8_t xhg = Wire.read();
-  uint8_t ylg = Wire.read();
-  uint8_t yhg = Wire.read();
-  uint8_t zlg = Wire.read();
-  uint8_t zhg = Wire.read();
+  bus->requestFrom(address, (uint8_t)6);
+  uint8_t xlg = bus->read();
+  uint8_t xhg = bus->read();
+  uint8_t ylg = bus->read();
+  uint8_t yhg = bus->read();
+  uint8_t zlg = bus->read();
+  uint8_t zhg = bus->read();
 
   // combine high and low bytes
   g.x = (int16_t)(xhg << 8 | xlg);
@@ -210,17 +215,17 @@ void LSM6::vector_normalize(vector<float> *a)
 
 int16_t LSM6::testReg(uint8_t address, regAddr reg)
 {
-  Wire.beginTransmission(address);
-  Wire.write((uint8_t)reg);
-  if (Wire.endTransmission() != 0)
+  bus->beginTransmission(address);
+  bus->write((uint8_t)reg);
+  if (bus->endTransmission() != 0)
   {
     return TEST_REG_ERROR;
   }
 
-  Wire.requestFrom(address, (uint8_t)1);
-  if (Wire.available())
+  bus->requestFrom(address, (uint8_t)1);
+  if (bus->available())
   {
-    return Wire.read();
+    return bus->read();
   }
   else
   {

@@ -95,6 +95,9 @@ class LSM6
 
     LSM6();
 
+    void setBus(TwoWire * bus) { this->bus = bus; }
+    TwoWire * getBus() { return bus; }
+
     bool init(deviceType device = device_auto, sa0State sa0 = sa0_auto);
     deviceType getDeviceType() { return _device; }
 
@@ -114,6 +117,7 @@ class LSM6
 
   private:
     deviceType _device; // chip type
+    TwoWire * bus;
     uint8_t address;
 
     int16_t testReg(uint8_t address, regAddr reg);
