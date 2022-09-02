@@ -42,13 +42,13 @@ bool LSM6::init(deviceType device, sa0State sa0)
       if (sa0 != sa0_low && testReg(DS33_SA0_HIGH_ADDRESS, WHO_AM_I) == DS33_WHO_ID)
       {
         sa0 = sa0_high;
-        if (device == device_auto) { device = device_DS33; }
+        device = device_DS33;
       }
       // check SA0 low address unless SA0 was specified to be high
       else if (sa0 != sa0_high && testReg(DS33_SA0_LOW_ADDRESS, WHO_AM_I) == DS33_WHO_ID)
       {
         sa0 = sa0_low;
-        if (device == device_auto) { device = device_DS33; }
+        device = device_DS33;
       }
     }
 
@@ -59,13 +59,13 @@ bool LSM6::init(deviceType device, sa0State sa0)
       if (sa0 != sa0_low && testReg(DSO_SA0_HIGH_ADDRESS, WHO_AM_I) == DSO_WHO_ID)
       {
         sa0 = sa0_high;
-        if (device == device_auto) { device = device_DSO; }
+        device = device_DSO;
       }
       // check SA0 low address unless SA0 was specified to be high
       else if (sa0 != sa0_high && testReg(DSO_SA0_LOW_ADDRESS, WHO_AM_I) == DSO_WHO_ID)
       {
         sa0 = sa0_low;
-        if (device == device_auto) { device = device_DSO; }
+        device = device_DSO;
       }
     }
 
