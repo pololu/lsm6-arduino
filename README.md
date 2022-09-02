@@ -1,12 +1,14 @@
 # LSM6 library for Arduino
-
-Version: 1.0.0<br>
-Release date: 2016 January 19<br>
 [www.pololu.com](https://www.pololu.com/)
 
 ## Summary
 
-This is a library for the Arduino IDE that helps interface with ST's [LSM6DS33 3D accelerometer and gyro](https://www.pololu.com/product/2736). The library makes it simple to configure the LSM6DS33 and read the raw accelerometer and gyro data through I&sup2;C.
+This is a library for the Arduino IDE that helps interface with ST's LSM6DS33 and LSM6DSO 3D accelerometer and gyro ICs on Pololu boards. It makes it simple to configure the LSM6DS33 and read the raw accelerometer and gyro data from these boards:
+
+ * [LSM6DSO 3D accelerometer and gyro carrier](https://www.pololu.com/product/2798)
+ * [LSM6DS33 3D accelerometer and gyro carrier](https://www.pololu.com/product/2736)
+ * [MinIMU-9 v5 (LSM6DS33 and LIS3MDL carrier)](https://www.pololu.com/product/2738)
+ * [AltIMU-9 v5 (LSM6DS33, LIS3MDL, and LPS25H carrier)](https://www.pololu.com/product/2739)
 
 ## Supported platforms
 
@@ -16,7 +18,7 @@ This library is designed to work with the Arduino IDE versions 1.6.x or later; w
 
 ### Hardware
 
-An [LSM6DS33 carrier](https://www.pololu.com/product/2736) can be purchased from Pololu's website.  Before continuing, careful reading of the [product page](https://www.pololu.com/product/2736) as well as the LSM6 datasheet and application note is recommended.
+An LSM6 carrier can be purchased from Pololu's website.  Before continuing, careful reading of the product page as well as the chip datasheet and application note is recommended.
 
 Make the following connections between the Arduino and the LSM6 board:
 
@@ -73,16 +75,22 @@ An example sketch is available that shows how to use the library. You can access
 * `uint8_t last_status`<br>
   The status of the last I&sup2;C write transmission. See the [`Wire.endTransmission()` documentation](http://arduino.cc/en/Reference/WireEndTransmission) for return values.
 
-* `LSM6(void)`<br>
+* `LSM6()`<br>
   Constructor.
+
+* `void setBus(TwoWire * bus)`<br>
+  Configures this object to use the specified I&sup2;C bus. `bus` should be a pointer to a `TwoWire` object; the default bus is `Wire`, which is typically the first or only I&sup2;C bus on an Arduino. If your Arduino has more than one I&sup2;C bus and you have the VL53L0X connected to the second bus, which is typically called `Wire1`, you can call `sensor.setBus(&Wire1);`.
+
+* `TwoWire * getBus()`<br>
+  Returns a pointer to the I&sup2;C bus this object is using.
 
 * `bool init(deviceType device, sa0State sa0)`<br>
   Initializes the library with the device being used (`device_DS33` or `device_auto`) and the state of the SA0 pin (`sa0_low`, `sa0_high`, or `sa0_auto`), which determines the least significant bit of the I&sup2;C slave address. Constants for these arguments are defined in LSM6.h. Both of these arguments are optional; if they are not specified, the library will try to automatically detect the device address. A boolean is returned indicating whether the type of LSM6 device was successfully determined (if necessary).
 
-* `void getDeviceType(void)`<br>
+* `void getDeviceType()`<br>
   Returns the device type specified to or detected by `init()`.
 
-* `void enableDefault(void)`<br>
+* `void enableDefault()`<br>
   Turns on the accelerometer and gyro and enables a consistent set of default settings.
 
   This function will reset the accelerometer to &plusmn;2&nbsp;g full scale and the gyro to &plusmn;245&nbsp;dps. See the comments in LSM6.cpp for a full explanation of the settings.
@@ -96,24 +104,16 @@ An example sketch is available that shows how to use the library. You can access
 * `uint8_t readReg(uint8_t reg)`<br>
   Reads a sensor register and returns the value read.
 
-* `void readAcc(void)`<br>
+* `void readAcc()`<br>
   Takes a reading from the accelerometer and stores the values in the vector `a`. Conversion of the readings to units of g depends on the accelerometer's selected gain (full scale setting).
 
-* `void readGyro(void)`<br>
+* `void readGyro()`<br>
   Takes a reading from the gyro and stores the values in the vector `g`. Conversion of the readings to units of dps (degrees per second) depends on the gyro's selected gain (full scale setting).
 
-* `void read(void)`<br>
+* `void read()`<br>
   Takes a reading from both the accelerometer and gyro and stores the values in the vectors `a` and `g`.
-
-* `void setTimeout(uint16_t timeout)`<br>
-  Sets a timeout period in milliseconds after which the read functions will abort if the sensor is not ready. A value of 0 disables the timeout.
-
-* `uint16_t getTimeout(void)`<br>
-  Returns the current timeout period setting.
-
-* `bool timeoutOccurred(void)`<br>
-  Indicates whether a read timeout has occurred since the last call to `timeoutOccurred()`.
 
 ## Version history
 
-* 1.0.0 (2016 Jan 19): Original release.
+* 2.0.0 (2022-09-02): Added support for LSM6DSO and support for alternative I&sup2;C buses. Removed timeout functionality that did not work as intended.
+* 1.0.0 (2016-01-19): Original release.
