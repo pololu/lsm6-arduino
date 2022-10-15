@@ -115,5 +115,6 @@ An example sketch is available that shows how to use the library. You can access
 
 ## Version history
 
+* 2.0.1 (2022-10-14): Renamed PIN_CTRL to DSO_PIN_CTRL to work around a naming conflict with the ESP32. The original name can still be used on other platforms.
 * 2.0.0 (2022-09-02): Added support for LSM6DSO and support for alternative I&sup2;C buses. Removed timeout functionality that did not work as intended.
 * 1.0.0 (2016-01-19): Original release.
