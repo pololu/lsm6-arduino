@@ -19,7 +19,14 @@ class LSM6
     enum regAddr
     {
       FUNC_CFG_ACCESS          = 0x01,
+
+      // This register conflicts with a register in the ESP32 with the same
+      // name. We call it DSO_PIN_CTRL to work around this problem, but we'll
+      // also define PIN_CTRL for use on other platforms.
+      DSO_PIN_CTRL             = 0x02, // DSO
+#ifndef PIN_CTRL
       PIN_CTRL                 = 0x02, // DSO
+#endif
 
       DS33_FIFO_CTRL1          = 0x06, // DS33
       DS33_FIFO_CTRL2          = 0x07, // DS33
