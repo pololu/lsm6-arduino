@@ -7,6 +7,8 @@ This is a library for the Arduino IDE that helps interface with ST's LSM6DS33 an
 
  * [LSM6DSO 3D accelerometer and gyro carrier](https://www.pololu.com/product/2798)
  * [LSM6DS33 3D accelerometer and gyro carrier](https://www.pololu.com/product/2736)
+ * [MinIMU-9 v6 (LSM6DSO and LIS3MDL carrier)](https://www.pololu.com/product/2862)
+ * [AltIMU-10 v6 (LSM6DSO, LIS3MDL, and LPS22DF Carrier)](https://www.pololu.com/product/2863)
  * [MinIMU-9 v5 (LSM6DS33 and LIS3MDL carrier)](https://www.pololu.com/product/2738)
  * [AltIMU-9 v5 (LSM6DS33, LIS3MDL, and LPS25H carrier)](https://www.pololu.com/product/2739)
 
