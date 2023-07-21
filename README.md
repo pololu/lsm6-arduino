@@ -3,7 +3,7 @@
 
 ## Summary
 
-This is a library for the Arduino IDE that helps interface with ST's LSM6DS33 and LSM6DSO 3D accelerometer and gyro ICs on Pololu boards. It makes it simple to configure the LSM6DS33 and read the raw accelerometer and gyro data from these boards:
+This is a library for the Arduino IDE that helps interface with ST's LSM6DS33 and LSM6DSO 3D accelerometer and gyro ICs on Pololu boards. It makes it simple to configure the LSM6 and read the raw accelerometer and gyro data from these boards:
 
  * [LSM6DSO 3D accelerometer and gyro carrier](https://www.pololu.com/product/2798)
  * [LSM6DS33 3D accelerometer and gyro carrier](https://www.pololu.com/product/2736)
